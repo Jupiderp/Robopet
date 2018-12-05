@@ -17,8 +17,8 @@
 #define BACKWARD LOW
 #define THROTTLE_MIN 0
 #define THROTTLE_MAX 255
-#define trigPin 0
-#define echoPin 1
+#define trigPin 1
+#define echoPin 0
 
 #define NOTE_B0  31
 #define NOTE_C1  33
@@ -181,6 +181,8 @@ TimedAction MusicThread = TimedAction(50,music);
 bool locating = true;
 int pos = 0;
 int sound = 250;
+int distance;
+long duration;
 
 void setup() {
   // Start Serial Monitor for feedback
@@ -201,8 +203,8 @@ void setup() {
   analogWrite(enabler,0);
   analogWrite(enablel,0);
 
-  pinMode(melodyPin, OUTPUT);//buzzer
-  pinMode(led, OUTPUT);//led indicator when singing a note
+  pinMode(melodyPin,OUTPUT);//buzzer
+  pinMode(led,OUTPUT);//led indicator when singing a note
   pinMode(trigPin,OUTPUT);
   pinMode(echoPin,INPUT);
   
@@ -214,33 +216,20 @@ void loop() {
     analogWrite(enablel,0);  
     TailThreadS.disable();
     TailThreadF.check();
-    //music();
-    locating = true;
-    digitalWrite(led,HIGH);
-  
+    music();
+    locating = true;  
   }
   if (locating == true) {
     TailThreadF.disable();
     TailThreadS.check();
-    digitalWrite(led,HIGH);
 
-    /*long duration, distance;
-    digitalWrite(trigPin,LOW);
-    delayMicroseconds(2);
-    digitalWrite(trigPin,HIGH);
-    delayMicroseconds(10);
-    digitalWrite(trigPin,LOW);
-    duration = pulseIn(echoPin,HIGH);
-    distance = pulseIn(echoPin,HIGH);
-    distance = (duration/2)/29.1; //cm
-    Serial.println(distance);
-    
-    if(distance < 5) {
-      analogWrite(enabler,0);   
-      analogWrite(enablel,0);  
-      Serial.println("distance less than 5");       
+    distance = calculateDistance();
+    if (distance < 15) {
+      analogWrite(enabler,0);
+      analogWrite(enablel,0);
     }
-    else if (distance > 60 || distance <= 5) {
+    
+    else if (distance > 60 || distance <= 15) {
       analogWrite(enabler,100);   
       analogWrite(enablel,100);  
       Serial.println("distance within range");       
@@ -250,7 +239,7 @@ void loop() {
       analogWrite(enablel,0);  
       Serial.println("too far");
     }
-    delay(500);*/    
+    delay(500);  
   }
 }
 
@@ -316,79 +305,17 @@ void buzz(int targetPin, long frequency, long length) {
     delayMicroseconds(delayValue); // wait again or the calculated delay value
   }
   digitalWrite(13, LOW);
- 
 }
 
-
+int calculateDistance()
+{
+  digitalWrite(trigPin,LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin,HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin,LOW);
   
-  /*// Sweep motor at phase = FORWARD,
-  //  and motor speed at enable steps 0 to 255
-  //  speed up 
-  digitalWrite(phaser,FORWARD);
-  digitalWrite(phaselr,BACKWARD);
-  digitalWrite(phaserl,BACKWARD);
-  digitalWrite(phasel,FORWARD);
-  for(int i = THROTTLE_MIN; i <= THROTTLE_MAX; i++) {
-    analogWrite(enabler,i);   
-    analogWrite(enablel,i);         
-    Serial.print("(phase,enable)=(");
-    Serial.print(FORWARD);
-    Serial.print(",");
-    Serial.print(i);
-    Serial.println(")");
-    delay(5);
-  }
-  delay(500);
-
-  // Sweep motor at phase = FORWARD,
-  //  and motor speed at enable steps 255 to 0
-  //  slow down
-  for(int i = THROTTLE_MAX; i >= THROTTLE_MIN; i--) {
-    analogWrite(enabler,i);   
-    analogWrite(enablel,i);             
-    Serial.print("(phase,enable)=(");
-    Serial.print(FORWARD);
-    Serial.print(",");
-    Serial.print(i);
-    Serial.println(")");
-    delay(5);
-  }
-  delay(500);
-
-
-
-  // Sweep motor at phase = BACKWARD,
-  //  and motor speed at enable steps 0 to 255
-  //  speed up 
-  digitalWrite(phaser,BACKWARD);
-  digitalWrite(phasel,BACKWARD);
-  digitalWrite(phaselr,FORWARD);
-  digitalWrite(phaserl,FORWARD);
-  
-  for(int i = THROTTLE_MIN; i <= THROTTLE_MAX; i++) {
-    analogWrite(enabler,i);   
-    analogWrite(enablel,i);           
-    Serial.print("(phase,enable)=(");
-    Serial.print(BACKWARD);
-    Serial.print(",");
-    Serial.print(i);
-    Serial.println(")");
-    delay(5);
-  }
-  delay(500);
-
-  // Sweep motor at phase = BACKWARD,
-  //  and motor speed at enable steps 255 to 0
-  //  slow down
-  for(int i = THROTTLE_MAX; i >= THROTTLE_MIN; i--) {
-    analogWrite(enabler,i);
-    analogWrite(enablel,i);         
-    Serial.print("(phase,enable)=(");
-    Serial.print(BACKWARD);
-    Serial.print(",");
-    Serial.print(i);
-    Serial.println(")");
-    delay(5);
-  }
-  delay(500);
-}*/
+  duration=pulseIn(echoPin,HIGH);
+  distance=duration*0.034/2;
+  return distance;
+} 
