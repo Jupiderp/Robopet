@@ -1,14 +1,19 @@
 #include <Servo.h> 
  
 Servo myservo; // create servo object to control a servo 
-// a maximum of eight servo objects can be created 
  
 // defines pins numbers
+#define enabler 3
+#define phaser 5
+#define phaserl 6
+#define enablel 9
+#define phasel 10
+#define phaselr 11
 #define led 13
 #define servo 7
 #define trigPin 1
 #define echoPin 0
-#define melodyPin 3
+#define melodyPin 2
 
 #define NOTE_B0  31
 #define NOTE_C1  33
@@ -140,6 +145,7 @@ int melody[] = {
   0, NOTE_E7, 0, NOTE_C7,
   NOTE_D7, NOTE_B6, 0, 0
 };
+
 //Mario main them tempo
 int tempo[] = {
   12, 12, 12, 12,
@@ -168,7 +174,6 @@ int tempo[] = {
   12, 12, 12, 12,
 };
 
-
 void setup() {
   // put your setup code here, to run once:
   myservo.attach(servo); // attaches the servo on pin 9 to the servo object 
@@ -192,7 +197,6 @@ void setup() {
   analogWrite(enablel,0);
   
   Serial.begin(9600); // Starts the serial communication
-
 }
 
 void loop() {
@@ -267,7 +271,6 @@ String getValue(String data, char separator, int index) {
       strIndex[1] = (i == maxIndex) ? i + 1 : i;
     }
   }
-
   return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
 
@@ -311,5 +314,4 @@ void buzz(int targetPin, long frequency, long length) {
   }
   digitalWrite(led, LOW);
   myservo.write(0);
- 
 }
